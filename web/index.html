@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div>ACTUALIZAR DATOS</div>      
+        <input type="text" name="marca" placeholder="marca" id="marca"/>
+        <input type="text" name="precio" placeholder="precio Soles" id="precio"/>        
+        <input type="text" name="color" placeholder="color" id="color"/>
+        <input type="text" name="AnioFabricacion" placeholder="año" id="anio">
+        <button onclick="insertar();">Insertar</button>    
+        <div id="rpta"></div>
+        <br><br>
+        <!--button onclick="Consultar()">Consultar</button-->
+        
+        <table id="mytable" cellpadding="1" border="1" STYLE="border-collapse:collapse;width:100%">
+            <tr>
+                <td>ID</td>
+                <td>Marca</td>
+                <td>Precio_Soles</td>
+                <td>Precio_Dolar</td>
+                <td>Color</td>
+                <td>Año</td>
+                <td>Acciones</td>                 
+            </tr>         
+        </table>
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <script type="text/javascript">
+            Consultar();        
+            function insertar () {
+               var nombre = document.getElementById("marca").value;
+               var precio = document.getElementById("precio").value;
+               var color = document.getElementById("color").value;
+               var anio = document.getElementById("anio").value;
+               $.ajax({
+                        method : 'POST',
+                        url : 'InsertarServlet',
+                        data :{                          
+                           nombre : nombre,
+                           precio : precio,
+                           color : color,
+                           anio : anio
+                        },
+                        success: function (msg){
+                            console.log(msg);   
+                            location.reload();
+                            /*var tabla = document.getElementById("mytable");
+                            var fila = tabla.insertRow(1);
+                            //CREAR CELDAS
+                            var celda0 = fila.insertCell(0);
+                            var celda1 = fila.insertCell(1);
+                            var celda2 = fila.insertCell(2);
+                            var celda3 = fila.insertCell(3);
+                            var celda4 = fila.insertCell(4);
+                            var celda5 = fila.insertCell(5);
+                            var celda6 = fila.insertCell(6);
+                            //PONER UN VALOR EN CADA CELDA
+                            celda0.innerHTML = msg.id_Prod;
+                            celda1.innerHTML = nombre;
+                            celda2.innerHTML = precio;
+                            celda3.innerHTML = msg.precio_dolar;
+                            celda4.innerHTML = color;
+                            celda5.innerHTML = anio;
+                            celda6.innerHTML = '<button onclick="borrar(this,'+msg.id_Prod+')">Borrar</button>'+'<button onclick="actualizar('+msg.id_Prod+')">Actualizar</button>'+
+                            '<button onclick="ver(this)">Ver</button>';
+                            //alert(msg.mensaje);*/
+                            //alert(msg.mensaje);
+                                                             
+                        },
+                        error: function (msg){
+                           console.error(msg);
+                        },
+                    });
+            }
+            function ver (btn) {
+                var fila = btn.closest('tr');
+                var nombre = fila.cells[1].innerHTML;
+                var precio = fila.cells[2].innerHTML;
+                var color = fila.cells[4].innerHTML;
+                var anio = fila.cells[5].innerHTML;
+                document.getElementById("marca").value = nombre;
+                document.getElementById("precio").value = precio;
+                document.getElementById("color").value = color;
+                document.getElementById("anio").value = anio;
+                console.log(nombre);
+                console.log(precio);
+                console.log(color);
+                console.log(anio);
+            }
+            function actualizar ( id_vehiculo) {
+                var nombre = document.getElementById("marca").value;
+                var precio = document.getElementById("precio").value;
+                var color = document.getElementById("color").value;
+                var anio = document.getElementById("anio").value;
+                $.ajax({
+                        method : 'POST',
+                        url : 'ActualizarServlet',
+                        data :{
+                           ID : id_vehiculo,
+                           nombre : nombre,
+                           precio : precio,
+                           color : color,
+                           anio : anio
+                        },
+                        success: function (msg){
+                            console.log(msg);                          
+                            //alert(msg.mensaje);
+                            document.getElementById("rpta").innerHTML = msg.msj;
+                            location.reload();
+                        },
+                        error: function (msg){
+                           console.error(msg);
+                        },
+                    });
+                
+            }
+            function borrar(btn, id_vehiculo) {
+                console.log(id_vehiculo);
+                var eliminar = btn.closest('tr');
+                var respuesta = prompt('Escribe SI para eliminar');
+                if(respuesta == 'SI') {
+                    var fila = btn.closest('tr');
+                    $.ajax({
+                        method : 'POST',
+                        url : 'EliminarServlet',
+                        data :{
+                           ID : id_vehiculo
+                        },
+                        success: function (msg){
+                            console.log(msg);
+                            fila.remove();
+                            alert(msg.mensaje);
+                                                             
+                        },
+                        error: function (msg){
+                           console.error(msg);
+                        },
+                    });
+                }
+            }
+            
+            function Consultar() {
+               $.ajax({
+                   method : 'POST',
+                   url : 'Consulta',
+                   success: function (msg){
+                       //console.log(msg);                   
+                       var tabla = document.getElementById("mytable");
+                       for(var i = 0; i < msg.length; i++) {
+                           console.log(msg[i]);
+                           //CREAR UNA FILA
+                           var fila = tabla.insertRow(1);
+                           //CREAR CELDAS
+                           var celda0 = fila.insertCell(0);
+                           var celda1 = fila.insertCell(1);
+                           var celda2 = fila.insertCell(2);
+                           var celda3 = fila.insertCell(3); 
+                           var celda4 = fila.insertCell(4);
+                           var celda5 = fila.insertCell(5);
+                           var celda6 = fila.insertCell(6);
+                            //PONER UN VALOR EN CADA CELDA
+                           celda0.innerHTML = msg[i].id_vehiculo;
+                           celda1.innerHTML = msg[i].marca;
+                           celda2.innerHTML = msg[i].precio;
+                           celda3.innerHTML = msg[i].Dolar;
+                           celda4.innerHTML = msg[i].color;
+                           celda5.innerHTML = msg[i].anioFabricacion;
+                           celda6.innerHTML = '<button onclick="borrar(this,'+msg[i].id_vehiculo+')">Borrar</button>'+'<button onclick="actualizar('+msg[i].id_vehiculo+')">Actualizar</button>'+
+                                   '<button onclick="ver(this)">Ver</button>';
+                       }
+                   },
+                   error: function (msg){   
+                       console.error(msg);
+                   },
+               });
+            }
+            function logear() {
+                var usuario = document.getElementById("user").value;
+                var clave = document.getElementById("pass").value;
+                console.log('HACIENDO EL LOGIN: '+usuario+ ' CLAVE: '+clave);
+                $.ajax({
+
+                    method : 'POST',
+
+                    url : 'MiServlet',
+
+                    data : {
+
+                        usuario : usuario,
+                        clave : clave
+
+                    },
+
+                    success: function(msg) {
+
+                        console.log(msg);
+                        document.getElementById("rpta").innerHTML = msg.msj;
+
+                    },
+
+                    error: function(msg) {
+
+                        console.error(msg);
+
+                    }
+
+                });
+            }
+        </script>
+    </body>
+</html>
